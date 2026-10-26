@@ -1,0 +1,4 @@
+interface:
+  display_name: "Pace 提效"
+  short_description: "持续寻找更短的有效路径，安排依赖、并行与等待，减少无效工作和返工"
+  default_prompt: "使用 $pace 优化当前任务的执行路径和编排，在保持质量与授权边界的前提下减少等待和返工。"

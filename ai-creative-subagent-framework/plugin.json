@@ -1,0 +1,37 @@
+{
+  "name": "ai-creative-subagent-framework",
+  "description": "AI Creative Production Sub-Agent Orchestration Framework — dispatch director, art director, cinematographer, brand director, and AI artist agents for script breakdown, visual design, brand compliance, and AI image/video generation workflows.",
+  "icon": "🎬",
+  "categories": ["creative", "ai-content", "film", "advertising"],
+  "skills": ["./"],
+  "agents": [
+    {
+      "name": "creative-director",
+      "description": "Overall project director who manages and orchestrates sub-agents"
+    },
+    {
+      "name": "director-agent",
+      "description": "Script decomposition, creative concept development, storyboard creation"
+    },
+    {
+      "name": "art-director-agent",
+      "description": "Scene visual design, tone and color scheme, visual references, mood board"
+    },
+    {
+      "name": "dop-agent",
+      "description": "Camera movement design, composition, lighting setup"
+    },
+    {
+      "name": "brand-director-agent",
+      "description": "Brand strategy review, compliance check, visual consistency audit"
+    },
+    {
+      "name": "ai-artist-agent",
+      "description": "Technical feasibility assessment, prompt engineering, quality control"
+    }
+  ],
+  "install": {
+    "method": "claude-skills-install",
+    "command": "claude skills install https://github.com/birdilsss-byte/ai-creative-subagent-framework"
+  }
+}

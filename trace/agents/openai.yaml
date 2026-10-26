@@ -1,0 +1,4 @@
+interface:
+  display_name: "Trace 执行追溯"
+  short_description: "关联计划执行中的尝试、问题与阶段成果，保留证据并支持恢复和案例复用"
+  default_prompt: "使用 $trace 跟踪当前计划执行中的尝试、问题和成果，保留可追溯证据。"

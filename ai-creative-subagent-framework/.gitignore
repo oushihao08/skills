@@ -1,0 +1,15 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Skills packaging
+*.skill
+
+# IDE
+.vscode/
+.idea/
+
+# Temp
+tmp/
+temp/
+*.tmp

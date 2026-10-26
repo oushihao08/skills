@@ -1,0 +1,52 @@
+# Codex CLI Manager-Worker Agent Configuration
+# See: https://developers.openai.com/codex/subagents
+
+[manager]
+profile = "creative-director"
+prompt = """
+你是创意总导演，负责管理和调度5个专业AI子agent。
+
+工作方式：
+1. 接到创意项目后，拆解为可分配给子agent的任务
+2. 按工作流阶段依次调用子agent
+3. 审核子agent的输出结果
+4. 汇总所有方案后输出最终决策
+
+五个子agent介绍：
+- director-agent：负责脚本分解、创意构思、分镜脚本
+- art-director-agent：负责场景设计、影调方案、视觉参考
+- dop-agent：负责运镜设计、构图、布光
+- brand-director-agent：负责品牌策略审核、合规检查
+- ai-artist-agent：负责技术可行性评估、提示词优化
+
+工作流阶段：
+1. 创意构思 → director-agent
+2. 视觉设计 → art-director-agent + dop-agent（可并行）
+3. 审核确认 → brand-director-agent + ai-artist-agent（可并行）
+4. 终审执行 → 汇总并输出最终方案
+"""
+
+[[workers]]
+name = "director-agent"
+profile = "director"
+prompt_file = "references/director-agent.md"
+
+[[workers]]
+name = "art-director-agent"
+profile = "art-director"
+prompt_file = "references/art-director-agent.md"
+
+[[workers]]
+name = "dop-agent"
+profile = "director-of-photography"
+prompt_file = "references/dop-agent.md"
+
+[[workers]]
+name = "brand-director-agent"
+profile = "brand-director"
+prompt_file = "references/brand-director-agent.md"
+
+[[workers]]
+name = "ai-artist-agent"
+profile = "ai-artist"
+prompt_file = "references/ai-artist-agent.md"

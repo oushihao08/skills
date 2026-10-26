@@ -1,0 +1,4 @@
+interface:
+  display_name: "ai-news"
+  short_description: "AI 情报与机会 Bot 的 X 收集、分析、审核和知识库工作流"
+  default_prompt: "使用 $ai-news 按仓库规则执行 AI 情报与机会任务。"

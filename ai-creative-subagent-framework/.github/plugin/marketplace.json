@@ -1,0 +1,25 @@
+{
+  "name": "ai-creative-marketplace",
+  "owner": {
+    "name": "birdilsss-byte",
+    "email": "birdilsss@gmail.com"
+  },
+  "metadata": {
+    "description": "AI Creative Production Sub-Agent Framework — dispatch director, art director, cinematographer, brand director, and AI artist agents",
+    "version": "1.0.0",
+    "pluginRoot": "./plugins"
+  },
+  "plugins": [
+    {
+      "name": "ai-creative-subagent-framework",
+      "description": "AI Creative Production Sub-Agent Orchestration Framework — script breakdown, visual design, brand compliance, AI image/video generation",
+      "version": "1.0.0",
+      "source": {
+        "source": "github",
+        "repo": "birdilsss-byte/ai-creative-subagent-framework",
+        "ref": "main"
+      },
+      "skills": ["./references"]
+    }
+  ]
+}
