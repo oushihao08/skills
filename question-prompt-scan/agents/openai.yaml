@@ -1,0 +1,4 @@
+interface:
+  display_name: "题面残留扫描"
+  short_description: "只扫描指定题面的格式包装和内部残留，导出定位清单并区分正常业务表达"
+  default_prompt: "使用 $question-prompt-scan 扫描我指定期次和状态的题面，只导出并审阅格式与内部残留，不自动改题。"
