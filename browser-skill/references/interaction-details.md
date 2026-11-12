@@ -25,10 +25,11 @@ for click. `--from-offset-x/y` and `--to-offset-x/y` adjust the endpoints from
 their visible action points in top-level viewport CSS pixels. Offsets inside
 out-of-process frames are unsupported. Use the actual thumb/handle when present.
 
-Observation JSON includes `observation_id`; supplying `--observation-id <id>`
-rejects a superseded ref map before input. New observe/snapshot/continuation
-replaces refs. Keep the matching token and refs together; the token does not
-replace `--context` when shared-control coordination requires it.
+Under target policy, endpoint drags with `--to` need only `--context`; displacement-only
+drags with `--dx`/`--dy` also require sync's single-use `--observation` receipt.
+Under strict policy, drag's optional `--observation-id <id>` rejects a superseded ref map;
+use the token from the matching observe/snapshot/continuation. Neither observation flag
+replaces `--context`. Never substitute a newer observation into an old decision.
 
 Both endpoints must be visible after preparation. Drag does not auto-scroll
 while held, cross tabs, or synthesize touch gestures. Canvas screenshot-bound
@@ -82,17 +83,24 @@ Do not infer the first-selected cell or range direction from a static highlight.
 Verify the final displayed range/form and, when requested, the eventual business
 success message separately.
 
-### Filling text
+### Filling fields
 
 `fill` supports enabled, editable text inputs, textareas, and contenteditable
-editor roots. Target the whole editing host, not an internal paragraph or span,
+editor roots, as well as `date`, `time`, `datetime-local`, `month`, and `week`
+inputs. Use browser value formats such as `2026-10-14`, `14:30`,
+`2026-10-14T14:30`, `2026-10`, and `2026-W42`, respectively. Use `bsk upload`
+for file inputs.
+
+Target the whole editing host, not an internal paragraph or span,
 even if that child has `tabindex` or repeats `contenteditable`. Unsupported
 targets are rejected without focusing or changing them; the tool never promotes
 a child target to its parent editor.
 
 By default, fill replaces all text in the target. `--no-clear` appends at its end.
-An empty value clears the target unless `--no-clear` is set. Use the editor root's
-ref from a fresh observation. After a mid-operation failure or cancellation,
+An empty value clears the target unless `--no-clear` is set. Date/time inputs
+always replace their value: `--no-clear` is rejected, and the value must be valid
+and within the input's `min`/`max`. Use the editor root's ref from a fresh
+observation. After a mid-operation failure or cancellation,
 observe before retrying: earlier input events or edits may already have occurred.
 Rich-text framework state and undo behavior require application-specific checks.
 
@@ -145,8 +153,9 @@ For one decided action and its resulting state, use [step and cached views](step
 The expensive part of a multi-step task can be caller round trips and repeated
 page interpretation, even when individual CLI calls are fast. After deciding
 one action from current evidence, run that action and its following sync in one
-tool invocation. Check action failure before proceeding; do not pre-plan several
-mutations or reuse one context across them. A known readiness selector can be
+tool invocation. Check action failure before proceeding. Target-policy DOM actions
+can reuse their control context; another sync is needed when the next decision needs
+new page evidence, not solely because a previous action completed. A known readiness selector can be
 waited on between that action and sync; check `satisfied`, without fixed sleeps
 or repeatedly returning a loading page to the model.
 
@@ -187,8 +196,8 @@ true only when neither occurred. A backend `next_cursor` belongs to capture
 pagination, not presentation filtering. Inspect the saved full reply or sync
 without `--match-text` for omitted controls; never infer absence, availability,
 a time range or a business value from an omitted numbered item. The original
-refs, observation/context IDs, activity and whole-page guard are unchanged.
-The guard detects page changes, not errors caused by overlooking existing rules.
+refs, observation/context IDs, activity and negotiated guard policy are unchanged.
+Target checks and explicit conditions cannot correct a decision that overlooks existing rules.
 Use a full view for final business decisions and verification.
 
 `--save-full` stages the complete returned reply before filtering, then publishes
@@ -197,18 +206,35 @@ no destination file; existing files, including concurrent writers, are never
 overwritten. `--max-tokens` still limits the original capture, so a saved reply
 can be capture-truncated. Read another section locally instead of taking a new
 snapshot just to change the display. Saved refs are historical: use them only
-while their context is current; sync after an action, intervention or page change.
+while their context and document remain current. A saved view does not renew control or
+refresh business facts; sync after intervention/navigation and observe changes relevant to the decision.
 
 For an action followed by a transient synchronization refusal, use
 `bsk cooperate sync --settle --session <id>`. It performs at most three read-only
 sync attempts, each retry preceded by `cooperate wait` (default 1s per wait;
 `--timeout-ms` overrides it). It retries only `cooperation_sync_required` with
 `effect_state: none`. Unknown effects, cancellation, user stop and other errors
-are returned without retries. A wait that is not ready returns `settle.outcome:
-not_ready` and no action context; continue the cooperation hand-back workflow.
+are returned without retries. A wait reporting `state.mode: unavailable` uses the
+remaining sync attempts, allowing navigation or slow frames to finish. If all
+three attempts fail, the last sync error is returned with a non-zero exit code;
+the CLI does not invent a frame failure or suggest reloading a loading page. Human control
+or a stopped wait still returns `settle.outcome: not_ready` and no action context;
+continue the cooperation hand-back workflow unless the user stopped the task.
+An explicit human hold takes priority over unavailable coverage in the returned state.
 Inspect `settle`, ownership and context, not just exit code. This does not prove
 application readiness: use an observed loading-complete signal where available.
 Never replay the preceding click, drag or submission because sync was refused.
+
+`frame_unobservable` means an active document still lacks interaction coverage
+after one targeted collector repair. Reload once; if it persists, use read-only
+commands such as `get-html` or `snapshot`. `page_load_failed` means the main page
+failed to load: check its URL and network, then reload. Neither reason is retried
+by `--settle`. Failed child frames and inactive documents are listed in
+`frame_gaps` without blocking sync; other active frames must remain observable.
+Frame diagnostic URLs retain only HTTP(S) origins and paths. Other URLs show
+only their protocol, and malformed URLs show `[unavailable]`.
+Before the first successful sync, status/wait reports `control_policy: null`
+because the session has not yet selected a policy.
 
 Use the ordinary full view for discovery when you do not yet know a useful
 label. Keep enough evidence to choose the next action; do not dump all markup
@@ -225,15 +251,28 @@ There is no default token cap. With `observe --max-tokens <n>`, follow a returne
 bsk observe --cursor <token> --session <id>
 ```
 
-Each page replaces the ref map: use its refs before continuing and never reuse
-refs from earlier pages. Continuation reads the same capture, without refreshing
+Under target policy, earlier DOM refs survive continuation; visual refs expire on each page.
+Strict policy replaces the ref map, so use its refs before continuing.
+Continuation reads the same capture, without refreshing
 or hovering; do not combine it with depth changes or hover probing. New observe/
 snapshot or changed page identity invalidates continuation; then observe afresh.
 
 ## Diagnostics and other tools
 
 Use `console` / `network` for bounded read-only diagnostics; follow returned
-sequence cursors. `emulate --device iphone-14` affects one tab; `--off` restores it.
+sequence cursors. The first `console` read and `debug start` turn on page console
+reporting for that tab until it is released; sites with anti-debugging checks can
+detect this and reload, so skip them there unless the task needs them.
+Before the first console read, Chrome can only replay retained messages from the
+current document; earlier documents and some exception stacks may be unavailable.
+To retain messages across navigation, read `console` before reproducing the issue.
+`emulate --device iphone-14` affects one tab; `--off` restores it.
+`window resize` changes outer window dimensions, not an exact viewport size. It
+checks the actual bounds and whether the target tab's viewport follows a change.
+If the target tab is inactive, select it within the Agent Window and sync before
+resizing. A fixed emulated viewport may need its own `emulate` adjustment; resize
+does not clear emulation or focus the window. When a resize reports an unconfirmed
+result, inspect its actual dimensions and sync before deciding what to do next.
 `evaluate` is a last resort: inspect JSON `.ok`, since a script exception can have
 CLI exit code 0. Never evaluate secrets. `record start` captures user actions;
 read its help first and never record banking, SSO or password-manager pages.

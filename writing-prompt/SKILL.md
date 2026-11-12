@@ -1,6 +1,6 @@
 ---
 name: writing-prompt
-description: 'Use when writing prompts for AI - system prompts, agents, skills, or AI model instructions. Apply AI-first design: structured > verbose, examples only when necessary, token efficiency priority. Trigger on "create a prompt", "write agent", "design skill".'
+description: 'Use when writing prompts for AI - system prompts, agents, skills, or AI model instructions. Apply AI-first design: prefer structured instructions over verbose prose, use examples only when necessary, and prioritize token efficiency. Trigger on "create a prompt", "write agent", "design skill".'
 ---
 
 # Writing Prompts
@@ -33,6 +33,9 @@ Do not let a lower-priority default override a clear current request. If a dynam
   <rule id="resolve">Resolve dynamic conditions from the current context before planning or writing.</rule>
   <rule id="scope">Apply exclusions only when explicitly requested, defined by applicable references, or proven irrelevant to the task.</rule>
   <rule id="generalize">Treat examples as demonstrations, not defaults, unless the prompt explicitly marks them as defaults.</rule>
+  <rule id="intent">When feedback is expressed through examples or rejected wording, extract the intended effect and decision basis instead of copying the example into the prompt.</rule>
+  <rule id="visibility">Require a comparison or choice only when the executing model receives the information needed to make it.</rule>
+  <rule id="propagation">For behavior controlled across multiple layers, update and verify the effective instruction path rather than editing documentation alone.</rule>
   <rule id="trace">For every non-obvious restriction, record its source and scope.</rule>
   <rule id="separate-counts">Separate discovery, candidate, accepted, analyzed, and delivered counts; never turn one run's counts into a permanent quota.</rule>
 </context_contract>
@@ -50,6 +53,17 @@ Good:
 > Search only content relevant to the current objective and explicit scope. Use the current task's requested delivery count; choose discovery volume from available data, budget, time range, and tool limits.
 
 The example is not a permanent medical exclusion or a fixed five-item quota.
+
+### Feedback-to-Rule Check
+
+When a user explains a recurring failure through examples, convert the feedback into four parts before editing:
+
+1. **Target effect:** What observable result should improve?
+2. **Trigger:** Under which current-task conditions should the rule apply?
+3. **Decision basis:** What information may the executing model actually use?
+4. **Acceptance evidence:** What output or runtime observation proves the rule took effect?
+
+Keep a negative prohibition only when the prohibited behavior is invalid in every in-scope case. Otherwise write a positive, context-dependent decision rule. Do not require the model to compare unseen history, infer unavailable state, or vary output randomly. If the behavior crosses preprocessing, configuration, runtime prompt assembly, schemas, or validators, trace the owning source through the actual consumer and verify the effective input; a source-file edit alone does not prove adoption.
 
 ## AI-First Design Principles
 
@@ -315,6 +329,9 @@ description: Use when [specific trigger conditions]. Apply [core method].
       <criterion>Fixed boundaries and dynamic conditions are separated</criterion>
       <criterion>Current user intent overrides lower-priority defaults</criterion>
       <criterion>No example has silently become a global rule</criterion>
+      <criterion>Example-based feedback is expressed as a target effect, trigger, available decision basis, and acceptance evidence</criterion>
+      <criterion>The executing model receives every input required by the instruction</criterion>
+      <criterion>Cross-layer instructions are verified at the effective runtime consumer, not only in their source document</criterion>
       <criterion>Restrictions have an identifiable source and scope</criterion>
       <criterion>Discovery, accepted, analyzed, and delivered counts are not conflated</criterion>
       <criterion>Examples only when necessary</criterion>
@@ -349,6 +366,9 @@ description: Use when [specific trigger conditions]. Apply [core method].
   <item>Classify every rule as fixed boundary, dynamic condition, evidence, example, or output requirement</item>
   <item>Resolve dynamic conditions from current context before applying defaults</item>
   <item>Do not convert examples, topics, counts, or past outputs into permanent rules</item>
+  <item>Convert example-based feedback into a target effect, trigger, available decision basis, and acceptance evidence</item>
+  <item>Require only comparisons and choices supported by inputs visible to the executing model</item>
+  <item>Verify cross-layer instructions at the effective runtime consumer, not only in their source document</item>
   <item>Apply exclusions only when sourced and scoped</item>
   <item>Separate discovery, candidate, accepted, analyzed, and delivered counts</item>
   <item>Run the concrete-value substitution test on non-obvious rules</item>

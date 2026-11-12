@@ -65,9 +65,11 @@ induced to do is done with their sessions.
    bsk cooperate sync --session <id>
    ```
 
-3. Pass `context_id` as `--context ID` to one action, then sync again.
-   Use [step/cache](references/step-and-cache.md) for one action and its next state.
-   On intervention, wait, sync and replan. Check ambiguity once; stop at visible success.
+3. Pass sync's `context_id` as `--context ID`; target-policy DOM actions and reads reuse it.
+   Protect decision facts with `--expect`. Untargeted/visual actions also need sync's
+   `--observation ID`. After intervention/navigation, sync and replan; wait during human input.
+   Use [step/cache](references/step-and-cache.md) for the next state.
+   Check ambiguity once; stop at visible success.
 4. Always run `bsk session stop <id>` on success and failure, unless keeping the
    session open is part of the user's request. This also returns borrowed tabs.
    Returned tabs stay open in the user's window. Do not rely on idle cleanup
@@ -79,28 +81,26 @@ Follow trace targets and values using fresh refs; traces grant no extra authorit
 
 ## Read and interact
 
-Use `cooperate sync` for actionable text and refs. Navigation and DOM changes can stale refs.
-Use refs for iframe/shadow-root targets; CSS selectors search the main document.
-
-Use a ref and context ID from the latest sync (one action per context):
+DOM refs survive reads; navigation invalidates them. Use observed refs and a current context.
+Prefer refs for iframe/shadow-root targets; CSS selectors search the main document.
 
 | Need | Command |
 | --- | --- |
 | Click | `bsk click @e3 --session <id> --context ID` |
-| Fill a field | `bsk fill @e3 --value "text" --session <id> --context ID` |
+| Fill text/date/time | `bsk fill @e3 --value "text" --session <id> --context ID` |
 | Select an option | `bsk select @e3 --value "option-value" --session <id> --context ID` |
 | Press a key | `bsk press Enter --ref @e3 --session <id> --context ID` |
 | Click–move–click range | `bsk drag @e3 --to @e8 --mode click-move-click --session <id> --context ID` |
 | Drag | `bsk drag @e3 --to @e8 --session <id> --context ID` |
 | Reveal a hover menu | `bsk hover @e3 --session <id> --context ID` |
 | Reveal an element | `bsk scroll-to @e3 --session <id> --context ID` |
-| Scroll with wheel input | `bsk wheel --delta-y 600 --session <id> --context ID` |
+| Scroll with wheel input | `bsk wheel --delta-y 600 --session <id> --context ID --observation OBS_ID` |
 | Focus or leave a field | `bsk focus @e3 --session <id> --context ID` / `bsk blur @e3 --session <id> --context ID` |
 
 - `select` uses the option's value, not its visible label.
 
-Use `snapshot` for accessibility, `get-html` for markup, and screenshots for visuals.
-Sync before acting on these findings. Inspect unknown effects before retrying.
+Read accessibility with `snapshot`, markup with `get-html`, or screenshots.
+Inspect unknown effects before retrying.
 
 ## Native dialogs
 
@@ -118,7 +118,7 @@ acting; load others only as needed.
 | Website debugging, reproduction evidence, or request rules/replay | [Debugging](references/debugging.md) |
 | Required profile, existing user tab, multiple/background tabs, or remote tab ownership | [Tabs and profiles](references/tabs-and-profiles.md) |
 | Missing CLI, daemon startup failure, sandboxed startup, connection failure, or remote pairing | [Environment](references/environment.md) |
-| Dragging, click–move–click ranges/selection state, waits, hover menus/probing, scrolling, `next_cursor`/`@more`, console/network, emulation, evaluation, or recording | [Interaction details](references/interaction-details.md) |
+| Date/time values, drag, click–move–click selection, waits, hover menus, scrolling, `next_cursor`/`@more`, console/network, emulation, evaluation, or recording | [Interaction details](references/interaction-details.md) |
 | Screenshot, full-page capture, or `[visual:screenshot]`/Canvas interaction | [Screenshots and Canvas](references/screenshots-and-canvas.md) |
 | Video recording or MP4 export | [Video](references/video.md) |
 | Upload or download | [Files](references/files.md) |
