@@ -10,6 +10,7 @@
 
 ## Skill 目录
 
+- [agent-learn](agent-learn/SKILL.md)
 - [ai-creative-subagent-framework](ai-creative-subagent-framework/SKILL.md)
 - [ai-news](ai-news/SKILL.md)
 - [anysearch](anysearch/SKILL.md)
